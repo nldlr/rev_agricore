@@ -18,10 +18,10 @@ class FieldJob(Base):
     __tablename__ = "field_jobs"
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(String(100))
-    priority: Mapped[FieldJobPriority] = mapped_column(SqlEnum(FieldJobPriority), name="field_job_priority",
-                                                       values_callable=lambda enum_cls: [member.value for member in enum_cls])
-    status: Mapped[FieldJobStatus] = mapped_column(SqlEnum(FieldJobStatus), name="field_job_status",
-                                                   values_callable=lambda enum_cls: [member.value for member in enum_cls])
+    priority: Mapped[FieldJobPriority] = mapped_column(SqlEnum(FieldJobPriority, name="field_job_priority",
+                                                       values_callable=lambda enum_cls: [member.value for member in enum_cls]))
+    status: Mapped[FieldJobStatus] = mapped_column(SqlEnum(FieldJobStatus, name="field_job_status",
+                                                   values_callable=lambda enum_cls: [member.value for member in enum_cls]), default=FieldJobStatus.PENDING)
     equipment_id: Mapped[int] = mapped_column(Integer, ForeignKey("equipments.id"))
     operator_id: Mapped[int] = mapped_column(Integer, ForeignKey("operators.id"))
 
@@ -29,6 +29,13 @@ class FieldJob(Base):
     equipment: Mapped["Equipment"] = relationship(back_populates="field_jobs") # Each field job has one equipment.
     operator: Mapped["Operator"] = relationship(back_populates="field_jobs") # Each field job has one operator.
     service_reports: Mapped[list["ServiceReport"]] = relationship(back_populates="field_job") # Each field job has many service reports.
+
+    def mark_completed(self) -> None:
+        self.status = FieldJobStatus.COMPLETED
+
+    def mark_failed(self) -> None:
+        self.status = FieldJobStatus.FAILED
+
 
     def __repr__(self) -> str:
         return f"Field Job(id={self.id!r}, title={self.title!r}, priority={self.priority.value}, status={self.status.value})"

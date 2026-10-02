@@ -24,8 +24,8 @@ class Equipment(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     serial_number: Mapped[str] = mapped_column(String(50), unique=True)
     model: Mapped[str] = mapped_column(String(100))
-    status: Mapped[EquipmentStatus] = mapped_column(SqlEnum(EquipmentStatus), name="equipment_status",
-                                                     values_callable=lambda enum_cls: [member.value for member in enum_cls])
+    status: Mapped[EquipmentStatus] = mapped_column(SqlEnum(EquipmentStatus, name="equipment_status",
+                                                     values_callable=lambda enum_cls: [member.value for member in enum_cls]), default=EquipmentStatus.IDLE)
     fuel_level: Mapped[int] = mapped_column(Numeric(5, 2))
     farm_id: Mapped[int] = mapped_column(Integer, ForeignKey("farms.id"))
 
