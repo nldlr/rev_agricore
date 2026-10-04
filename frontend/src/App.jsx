@@ -1,122 +1,88 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { Container, Typography, Box, Snackbar, Alert} from '@mui/material'
+import {useState} from 'react'
+import AppHeader from './components/layout/AppHeader.jsx'
 
-function App() {
-  const [count, setCount] = useState(0)
+import ReliabilityMetrics from './components/analytics/ReliabilityMetrics.jsx'
+import MaintenanceFlags from './components/analytics/MaintenanceFlags.jsx'
+import ReportingLines from './components/analytics/ReportingLines.jsx'
+
+import LoginForm from './components/auth/LoginForm.jsx';
+import EquipmentDataGrid from './components/equipments/EquipmentDataGrid.jsx';
+import DiscrepancyDataGrid from './components/field_jobs/DiscrepancyDataGrid.jsx';
+import { AuthProvider, useAuth } from './context/AuthContext.jsx';
+
+//a main dashboard component that renders the application header and equipment data grid to authenticated users
+function Dashboard(){
+  //stores the current user object and logout function from the global AuthContext
+  const {user, logout} = useAuth()
+  const [notification, setNotification] = useState(null)
 
   return (
     <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+      <AppHeader username={user?.sub} role={user?.role} onLogout={logout} />
+      <Container maxWidth="lg" sx={{ mt: 4}}>
+        <Typography variant="h5" component="h2" gutterBottom>
+          Agricore Overview
+        </Typography>
+        <Box sx={{ mb: 4}}>
+          <EquipmentDataGrid onSuccess={setNotification}/>
+        </Box>
+        <Typography variant="h5" component="h2" gutterBottom>
+          Co-Location Discrepancies
+        </Typography>
+        <Box sx={{ mb: 4}}>
+          <DiscrepancyDataGrid />
+        </Box>
+      </Container>
 
-      <div className="ticks"></div>
+      <Typography variant="h5" component="h2" gutterBottom>
+      Reliability Metrics
+      </Typography>
+      <Box sx={{ mb: 4 }}>
+      <ReliabilityMetrics />
+      </Box>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      <Typography variant="h5" component="h2" gutterBottom>
+      Maintenance Flags
+      </Typography>
+      <Box sx={{ mb: 4 }}>
+      <MaintenanceFlags />
+      </Box>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
+      <Typography variant="h5" component="h2" gutterBottom>
+      Reporting Lines
+      </Typography>
+      <Box sx={{ mb: 4 }}>
+      <ReportingLines />
+      </Box>
+
+      <Snackbar
+        open={Boolean(notification)}
+        autoHideDuration={4000}
+        onClose={() => setNotification(null)}>
+          <Alert severity="success" onClose={() => setNotification(null)}>
+            {notification}
+          </Alert>
+        </Snackbar>
+
     </>
+  );
+}
+
+//conditional layout switcher component that renders either the Dashboard or the login form
+//based on the user's authentication status, tracked in the global AuthContext
+function AppContent() {
+  const {isAuthenticated } = useAuth();
+  return isAuthenticated ? <Dashboard /> : <LoginForm />;
+}
+
+//acts as a root application component that wraps the entire app in the AuthProvider context
+function App(){
+  return (
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
   )
 }
 
-export default App
+export default App;

@@ -13,8 +13,8 @@
 
 
 # app = FastAPI(
-#     title = "Medflow Clinical Equipment Command Center",
-#     description = "Clinical Management API for Halcyon Health Systems",
+#     title = "Agricore Clinical Equipment Command Center",
+#     description = "-",
 #     version = "0.1.0"
 # )
 
@@ -64,7 +64,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routers import equipments, field_jobs, auth
+from .routers import equipments, field_jobs, auth, farms
 
 app = FastAPI(
     title = "Agricore Equipment Command Center",
@@ -72,21 +72,22 @@ app = FastAPI(
     version = "0.1.0"
 )
 
-# # CORS Configuration
-# app.add_middleware(
-#     CORSMiddleware,
-#     #The endpoint for our frontent, currently provided by the vite dev server
-#     allow_origins=["http://localhost:5173"],
-#     #This allows us to pass an Authorization header (JWT)
-#     allow_credentials=True,
-#     #This allows all methods and headers through
-#     allow_methods=["*"],
-#     allow_headers=["*"]
-# )
+# CORS Configuration
+app.add_middleware(
+    CORSMiddleware,
+    #The endpoint for our frontent, currently provided by the vite dev server
+    allow_origins=["http://localhost:5173"],
+    #This allows us to pass an Authorization header (JWT)
+    allow_credentials=True,
+    #This allows all methods and headers through
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
 # Include routers in API
 app.include_router(equipments.router)
 app.include_router(field_jobs.router)
+# app.include_router(farms.router)
 app.include_router(auth.router)
 
 # Sample health endpoint to validate the application is running correctly.
