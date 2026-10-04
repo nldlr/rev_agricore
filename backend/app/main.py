@@ -87,7 +87,7 @@ app.add_middleware(
 # Include routers in API
 app.include_router(equipments.router)
 app.include_router(field_jobs.router)
-# app.include_router(farms.router)
+app.include_router(farms.router)
 app.include_router(auth.router)
 
 # Sample health endpoint to validate the application is running correctly.
