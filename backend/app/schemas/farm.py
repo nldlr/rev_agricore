@@ -1,5 +1,17 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
+class FarmRead(BaseModel):
+    # id: Mapped[int] = mapped_column(primary_key=True)
+    #     name: Mapped[str] = mapped_column(String(100))
+    #     location_region: Mapped[str] = mapped_column(String(50))
+    #     capacity: Mapped[int] = mapped_column(Integer)
+    #     supervisor_id: Mapped[int] = mapped_column(Integer)
+    id: int
+    name: str
+    location_region: str
+    capacity: int
+    supervisor_id: int
+    model_config = ConfigDict(from_attributes=True)
 
 class MaintenanceFlag(BaseModel):
     farm_id: int

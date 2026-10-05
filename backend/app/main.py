@@ -64,7 +64,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routers import equipments, field_jobs, auth, farms
+from .routers import equipments, field_jobs, auth, farms, service_reports
 
 app = FastAPI(
     title = "Agricore Equipment Command Center",
@@ -89,6 +89,7 @@ app.include_router(equipments.router)
 app.include_router(field_jobs.router)
 app.include_router(farms.router)
 app.include_router(auth.router)
+app.include_router(service_reports.router)
 
 # Sample health endpoint to validate the application is running correctly.
 @app.get("/health", tags=["health"])

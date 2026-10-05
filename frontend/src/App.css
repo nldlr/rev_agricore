@@ -182,3 +182,22 @@
     border-right-color: var(--border);
   }
 }
+
+#equipment_btn_box {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  width: 100%;
+  position: relative;
+}
+
+#add_equipment_btn {
+  /* Displays add equipment button in middle, and filter button on far right.*/
+  grid-column: 2;
+  justify-self: center;
+}
+
+#filter_equipment_btn {
+  grid-column: 3;
+  justify-self: end;
+}

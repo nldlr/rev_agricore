@@ -22,13 +22,13 @@ function ReportingLines() {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-start', gap: 2, mb: 2, ml: 2 }}>
         <TextField
           label="Supervisor ID"
           value={supervisorId}
           onChange={(event) => setSupervisorId(event.target.value)}
         />
-        <Button variant="outlined" onClick={handleLookup}>Look Up</Button>
+        <Button variant="outlined" onClick={handleLookup}>Search</Button>
       </Box>
 
       {error && <Alert severity="error">{error}</Alert>}

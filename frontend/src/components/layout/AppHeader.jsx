@@ -4,7 +4,7 @@ import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturi
 function AppHeader({username, role, onLogout}) {
   return (
     <AppBar position="static">
-      <Toolbar>
+      <Toolbar sx={{ display: 'flex', alignItems: 'center', gap: 2}}>
         <PrecisionManufacturingIcon sx={{ mr: 2 }} />
         <Typography variant="h6" component="h1">
           Agricore Command Center

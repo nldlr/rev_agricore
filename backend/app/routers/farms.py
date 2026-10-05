@@ -4,9 +4,20 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.dependencies import get_current_user, get_db
 from app.models import Farm, FieldJob, FieldJobStatus, Operator, Equipment, EquipmentStatus, User
-from app.schemas.farm import MaintenanceFlag, OperatorActiveFieldJobs, ReportingLineResult
+from app.schemas.farm import MaintenanceFlag, OperatorActiveFieldJobs, ReportingLineResult, FarmRead
 
 router = APIRouter(prefix="/farms", tags=["farms"])
+
+@router.get("", response_model=list[FarmRead]) # Response model = schema format that will be returned to the client.
+async def list_farms(
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(get_current_user), # _ is for a variable you are required to define, but intend to ignore. Requires caller to be logged in with JWT token.
+) -> list[Farm]:
+    
+    statement = select(Farm).order_by(Farm.id)
+
+    result = await db.execute(statement) # Returns a list of database tuples: [(<Farm object>,), (<Farm object>,)]
+    return list(result.scalars().all())
 
 
 @router.get("/maintenance-flags", response_model=list[MaintenanceFlag])

@@ -9,6 +9,9 @@ import ReportingLines from './components/analytics/ReportingLines.jsx'
 import LoginForm from './components/auth/LoginForm.jsx';
 import EquipmentDataGrid from './components/equipments/EquipmentDataGrid.jsx';
 import DiscrepancyDataGrid from './components/field_jobs/DiscrepancyDataGrid.jsx';
+import ServiceReportDataGrid from './components/service_reports/ServiceReportDataGrid.jsx';
+import FieldJobDataGrid from './components/field_jobs/FieldJobDataGrid.jsx';
+import FarmDataGrid from './components/farms/FarmDataGrid.jsx';
 import { AuthProvider, useAuth } from './context/AuthContext.jsx';
 
 //a main dashboard component that renders the application header and equipment data grid to authenticated users
@@ -64,6 +67,27 @@ function Dashboard(){
             {notification}
           </Alert>
         </Snackbar>
+
+      <Container maxWidth="lg" sx={{ mt: 4}}>
+        <Typography variant="h5" component="h2" gutterBottom>
+          Farms
+        </Typography>
+        <Box sx={{ mb: 4}}>
+          <FarmDataGrid onSuccess={setNotification}/>
+        </Box>
+        <Typography variant="h5" component="h2" gutterBottom>
+          Field Jobs
+        </Typography>
+        <Box sx={{ mb: 4}}>
+          <FieldJobDataGrid onSuccess={setNotification}/>
+        </Box>
+        <Typography variant="h5" component="h2" gutterBottom>
+          Service Reports
+        </Typography>
+        <Box sx={{ mb: 4}}>
+          <ServiceReportDataGrid onSuccess={setNotification}/>
+        </Box>
+      </Container>
 
     </>
   );

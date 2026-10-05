@@ -8,6 +8,17 @@ from app.schemas.field_job import DiscrepancyRead, FieldJobRead, FieldJobStatusU
 
 router = APIRouter(prefix="/field_jobs", tags=["field_jobs"])
 
+@router.get("", response_model=list[FieldJobRead]) # Response model = schema format that will be returned to the client.
+async def list_field_jobs(
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(get_current_user), # _ is for a variable you are required to define, but intend to ignore. Requires caller to be logged in with JWT token.
+) -> list[FieldJob]:
+    
+    statement = select(FieldJob).order_by(FieldJob.id)
+
+    result = await db.execute(statement) # Returns a list of database tuples: [(<FieldJob object>,), (<FieldJob object>,)]
+    return list(result.scalars().all())
+
 
 @router.get("/discrepancies", response_model=list[DiscrepancyRead])
 async def list_colocation_discrepancies(
