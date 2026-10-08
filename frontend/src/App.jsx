@@ -14,50 +14,42 @@ import FieldJobDataGrid from './components/field_jobs/FieldJobDataGrid.jsx';
 import FarmDataGrid from './components/farms/FarmDataGrid.jsx';
 import { AuthProvider, useAuth } from './context/AuthContext.jsx';
 
+import DashboardPage from './components/layout/DashboardPage.jsx'
+import FarmsPage from './components/layout/FarmsPage.jsx'
+import FieldJobsPage from './components/layout/FieldJobsPage.jsx'
+import ServiceReportsPage from './components/layout/ServiceReportsPage.jsx'
+
+
 //a main dashboard component that renders the application header and equipment data grid to authenticated users
 function Dashboard(){
   //stores the current user object and logout function from the global AuthContext
   const {user, logout} = useAuth()
   const [notification, setNotification] = useState(null)
+  const [currentPage, setCurrentPage] = useState('Dashboard');
+
+  const renderPage = () => {
+    switch (currentPage) {
+      case 'Dashboard':
+        return <DashboardPage setNotification={setNotification}/>;
+      case 'Farms':
+        return <FarmsPage setNotification={setNotification}/>;
+      case 'FieldJobs':
+        return <FieldJobsPage setNotification={setNotification}/>;
+      case 'ServiceReports':
+        return <ServiceReportsPage setNotification={setNotification}/>; // Skipping Equipments page since it already appears on dashboard.
+      default:
+        return <p>Page Error!</p>;
+    }
+  }
+
 
   return (
     <>
-      <AppHeader username={user?.sub} role={user?.role} onLogout={logout} />
+      <AppHeader currentPage={currentPage} setCurrentPage={setCurrentPage} username={user?.sub} role={user?.role} onLogout={logout} />
+
       <Container maxWidth="lg" sx={{ mt: 4}}>
-        <Typography variant="h5" component="h2" gutterBottom>
-          Agricore Overview
-        </Typography>
-        <Box sx={{ mb: 4}}>
-          <EquipmentDataGrid onSuccess={setNotification}/>
-        </Box>
-        <Typography variant="h5" component="h2" gutterBottom>
-          Co-Location Discrepancies
-        </Typography>
-        <Box sx={{ mb: 4}}>
-          <DiscrepancyDataGrid />
-        </Box>
+        {renderPage()}
       </Container>
-
-      <Typography variant="h5" component="h2" gutterBottom>
-      Reliability Metrics
-      </Typography>
-      <Box sx={{ mb: 4 }}>
-      <ReliabilityMetrics />
-      </Box>
-
-      <Typography variant="h5" component="h2" gutterBottom>
-      Maintenance Flags
-      </Typography>
-      <Box sx={{ mb: 4 }}>
-      <MaintenanceFlags />
-      </Box>
-
-      <Typography variant="h5" component="h2" gutterBottom>
-      Reporting Lines
-      </Typography>
-      <Box sx={{ mb: 4 }}>
-      <ReportingLines />
-      </Box>
 
       <Snackbar
         open={Boolean(notification)}
@@ -67,28 +59,6 @@ function Dashboard(){
             {notification}
           </Alert>
         </Snackbar>
-
-      <Container maxWidth="lg" sx={{ mt: 4}}>
-        <Typography variant="h5" component="h2" gutterBottom>
-          Farms
-        </Typography>
-        <Box sx={{ mb: 4}}>
-          <FarmDataGrid onSuccess={setNotification}/>
-        </Box>
-        <Typography variant="h5" component="h2" gutterBottom>
-          Field Jobs
-        </Typography>
-        <Box sx={{ mb: 4}}>
-          <FieldJobDataGrid onSuccess={setNotification}/>
-        </Box>
-        <Typography variant="h5" component="h2" gutterBottom>
-          Service Reports
-        </Typography>
-        <Box sx={{ mb: 4}}>
-          <ServiceReportDataGrid onSuccess={setNotification}/>
-        </Box>
-      </Container>
-
     </>
   );
 }

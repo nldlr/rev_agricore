@@ -27,7 +27,7 @@ async def list_colocation_discrepancies(
         description="Only return discrepancies for field jobs of this priority.",
     ),
     db: AsyncSession = Depends(get_db),
-    _: User = Depends(require_role(UserRole.FARM_OPERATIONS_ADMIN, UserRole.FIELD_HAND)),
+    _: User = Depends(require_role(UserRole.FARM_OPERATIONS_ADMIN, UserRole.FIELD_HAND, UserRole.AUDITOR)),
 ):
     """
     Business Question #2: Co-Location Discrepancy
