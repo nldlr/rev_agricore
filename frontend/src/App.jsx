@@ -18,6 +18,7 @@ import DashboardPage from './components/layout/DashboardPage.jsx'
 import FarmsPage from './components/layout/FarmsPage.jsx'
 import FieldJobsPage from './components/layout/FieldJobsPage.jsx'
 import ServiceReportsPage from './components/layout/ServiceReportsPage.jsx'
+import UsersPage from './components/layout/UsersPage.jsx'
 
 
 //a main dashboard component that renders the application header and equipment data grid to authenticated users
@@ -36,7 +37,9 @@ function Dashboard(){
       case 'FieldJobs':
         return <FieldJobsPage setNotification={setNotification}/>;
       case 'ServiceReports':
-        return <ServiceReportsPage setNotification={setNotification}/>; // Skipping Equipments page since it already appears on dashboard.
+        return <ServiceReportsPage setNotification={setNotification}/>;
+      case 'Users':
+        return <UsersPage setNotification={setNotification}/>;
       default:
         return <p>Page Error!</p>;
     }

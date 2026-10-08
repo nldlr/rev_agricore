@@ -67,7 +67,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 # from app.config import settings # UNCOMMENT/COMMENT AT SAME TIME
 
-from .routers import equipments, field_jobs, auth, farms, service_reports
+from .routers import equipments, field_jobs, auth, farms, service_reports, users
 
 FRONTEND_ORIGIN = os.environ.get("FRONTEND_ORIGIN", "http://localhost:5173")
 # FRONTEND_ORIGIN = settings.frontend_origin # UNCOMMENT/COMMENT AT SAME TIME
@@ -96,6 +96,7 @@ app.include_router(field_jobs.router)
 app.include_router(farms.router)
 app.include_router(auth.router)
 app.include_router(service_reports.router)
+app.include_router(users.router)
 
 # Sample health endpoint to validate the application is running correctly.
 @app.get("/health", tags=["health"])

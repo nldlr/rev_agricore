@@ -6,25 +6,19 @@ import '../../App.css';
 
 //defines our DataGrid columns and maps them to our backend API response data
 const columns = [
-  { field: 'id', headerName: 'ID', width: 70 },
-  { field: 'priority', headerName: 'Priority', width: 160},
-  { field: 'status', headerName: 'Status', width: 160},
-  { field: 'equipment_id', headerName: 'Equipment ID', width: 230, type: 'number'  },
-  { field: 'operator_id', headerName: 'Operator ID', width: 260, type: 'number' },
+  { field: 'id', headerName: 'ID', width: 120 },
+  { field: 'username', headerName: 'User Name', width: 220},
+  { field: 'role', headerName: 'User Role', width: 260 },
 ];
-
-// id: int
-//     title: str
-//     priority: FieldJobPriority
-//     status: FieldJobStatus
-//     equipment_id: int
-//     operator_id: int
+    // id: int
+    // username: str = Field(min_length=3, max_length=50)
+    // role: UserRole
 
 
 //local state variables for tracking table rows, loading status, and network errors
 //to track the lifecycle of the async API request so the UI can render appropriately
-function FieldJobDataGrid({ onSuccess }) {
-  const [field_jobs, setFieldJobs] = useState([]);
+function UserDataGrid({ onSuccess }) {
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -36,7 +30,7 @@ function FieldJobDataGrid({ onSuccess }) {
     status: 'Idle',
   });
   const [lowFuelFlag, setLowFuelFlag] = useState(false);
-  const [errorFieldJob, setErrorFieldJob] = useState(null);
+  const [errorUser, setErrorUser] = useState(null);
 
   //React effect hook that runs our async fetch 
   // useEffect(() => {
@@ -44,12 +38,12 @@ function FieldJobDataGrid({ onSuccess }) {
   //   let isMounted = true;
 
     //pulls our equipment data from our backend
-    async function fetchFieldJobs() {
+    async function fetchUsers() {
       setLoading(true);
       try {
         let response;
-        response = await apiClient.get('/field_jobs');
-        setFieldJobs(response.data);
+        response = await apiClient.get('/users');
+        setUsers(response.data);
         setError(null); //make sure we clear any old errors
       } catch {
           setError('Could not load data.');
@@ -58,9 +52,9 @@ function FieldJobDataGrid({ onSuccess }) {
       }
     }
 
-    // fetchFieldJobs();
+    // fetchUsers();
     useEffect(() => {
-      fetchFieldJobs();
+      fetchUsers();
     }, []);
 
     const handleFieldChange = (field) => (event) => {
@@ -69,20 +63,20 @@ function FieldJobDataGrid({ onSuccess }) {
 
   //handles the actual creation of a new equipment record in the db
 //   const handleCreate = async() => {
-//     setErrorFieldJob(null);
+//     setErrorUser(null);
 //     try {
-//       await apiClient.post('/service_reports', {
+//       await apiClient.post('/users', {
 //         ...formValues,
 //       fuel_level: Number(formValues.fuel_level),
 //       farm_id: Number(formValues.farm_id),
 //     });
 //     setDialogOpen(false);
 //     setFormValues({serial_number: '', model: '', fuel_level: '', farm_id: '', status: 'Idle'});
-//     onSuccess(`FieldJob ${formValues.serial_number} created.`);
-//     await fetchFieldJobs(); //see the table data refreshed with the new equipment
+//     onSuccess(`User ${formValues.serial_number} created.`);
+//     await fetchUsers(); //see the table data refreshed with the new equipment
 //     } catch (err) {
 //       const msg = err.message || 'Submission failed (error unknown).';
-//       setErrorFieldJob(msg);
+//       setErrorUser(msg);
 //     }
 //   }
 
@@ -94,13 +88,13 @@ function FieldJobDataGrid({ onSuccess }) {
   //loads data grid component if all goes well
   return (
     <Box>
-        {/* <Button variant="outlined" sx={{ mb: 2}} onClick={() => setDialogOpen(true)}>Add Field Job</Button> */}
+        {/* <Button variant="outlined" sx={{ mb: 2}} onClick={() => setDialogOpen(true)}>Add User</Button> */}
     <Box sx={{ height: 400, width: '100%' }}>
-      <DataGrid rows={field_jobs} columns={columns} getRowId={(row) => row.id} />
+      <DataGrid rows={users} columns={columns} getRowId={(row) => row.id} />
     </Box>
 
     </Box>
   );
 }
 
-export default FieldJobDataGrid; 
+export default UserDataGrid; 
