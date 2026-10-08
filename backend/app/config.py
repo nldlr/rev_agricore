@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     frontend_origin: str = "http://localhost:5173"
 
     #tells pydantic-settings to actually read from backend/.env and fill these fields from it
-    model_config = SettingsConfigDict(env_file=".env")
+    # model_config = SettingsConfigDict(env_file=".env")
 
 #without the .env file setting values, this line will raise an error on startup
 settings = Settings()

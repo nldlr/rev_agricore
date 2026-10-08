@@ -1,0 +1,3 @@
+Test Equipment: Functional
+Charge Cycle Count: 62
+Last inspection: 01-01-2026

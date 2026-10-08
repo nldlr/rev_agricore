@@ -17,7 +17,7 @@ class ServiceReport(Base):
     field_job_id: Mapped[int] = mapped_column(Integer, ForeignKey("field_jobs.id"))
     file_url: Mapped[str] = mapped_column(Text)
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
-    timestamp: Mapped[datetime] = mapped_column(DateTime, default=func.now())
+    timestamp: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
 
     # Relationships
     field_job: Mapped["FieldJob"] = relationship(back_populates="service_reports") # Each service report has one field job.

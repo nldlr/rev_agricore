@@ -58,13 +58,19 @@
 
 
 
+import os
 
-
-
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+from sqlalchemy.exc import IntegrityError
 from fastapi.middleware.cors import CORSMiddleware
 
+# from app.config import settings # UNCOMMENT/COMMENT AT SAME TIME
+
 from .routers import equipments, field_jobs, auth, farms, service_reports
+
+FRONTEND_ORIGIN = os.environ.get("FRONTEND_ORIGIN", "http://localhost:5173")
+# FRONTEND_ORIGIN = settings.frontend_origin # UNCOMMENT/COMMENT AT SAME TIME
 
 app = FastAPI(
     title = "Agricore Equipment Command Center",
@@ -76,7 +82,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     #The endpoint for our frontent, currently provided by the vite dev server
-    allow_origins=["http://localhost:5173"],
+    allow_origins=[FRONTEND_ORIGIN],
     #This allows us to pass an Authorization header (JWT)
     allow_credentials=True,
     #This allows all methods and headers through
@@ -95,3 +101,23 @@ app.include_router(service_reports.router)
 @app.get("/health", tags=["health"])
 async def health_check() -> dict[str, str]:
     return {"status": "ok"}
+
+@app.get("/version", tags=["health"])
+async def version() -> dict[str, str]:
+    return {"version": app.version}
+
+
+@app.exception_handler(IntegrityError)
+async def integrity_error_handler(request: Request, exc: IntegrityError) -> JSONResponse:
+    return JSONResponse(
+        status_code=409,
+        content={"detail": "A database constraint was violated (e.g. a duplicate value)"},
+    )
+
+# ANY unexpected failure
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "An unexpected error has occured."},
+    )
