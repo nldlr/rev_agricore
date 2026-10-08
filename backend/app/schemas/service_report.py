@@ -1,5 +1,6 @@
 from decimal import Decimal
 from datetime import datetime
+from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -24,3 +25,7 @@ class ServiceReportRead(ServiceReportBase):
     id: int
     timestamp: datetime
     model_config = ConfigDict(from_attributes=True)
+
+
+class ServiceReportUpdate(BaseModel): # Only allowing change of notes.
+    notes: Optional[str] = None

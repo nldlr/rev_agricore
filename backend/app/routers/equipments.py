@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.dependencies import get_db, get_current_user, require_role
 from app.models import Equipment, EquipmentStatus, User, UserRole
-from app.schemas.equipment import EquipmentCreate, EquipmentRead
+from app.schemas.equipment import EquipmentCreate, EquipmentRead, EquipmentUpdate
 
 
 # Every route will start with /equipments. Tags categorizes these routes under "equipments" heading in SwaggerUI. (/docs)
@@ -60,3 +60,44 @@ async def create_equipment(payload: EquipmentCreate, db: AsyncSession = Depends(
     await db.commit()
     await db.refresh(equipment)
     return equipment
+
+# UPDATE /equipments/{equipment_id} endpoint, update a single equipment by ID.
+@router.patch("/{equipment_id}", response_model=EquipmentRead)
+async def update_equipment(
+    equipment_id: int,
+    payload: EquipmentUpdate,
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(require_role(UserRole.FARM_OPERATIONS_ADMIN)),
+) -> Equipment:
+    equipment = await db.get(Equipment, equipment_id)
+    if equipment is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Equipment '{equipment_id}' not found",
+        )
+
+    # Prepare updated values for copying.
+    equipment_updated = payload.model_dump(exclude_unset=True)
+
+    # Update object with new values, if given.
+    for field, value in equipment_updated.items():
+        setattr(equipment, field, value)
+
+    # Commit to database.
+    await db.commit()
+    await db.refresh(equipment)
+    return equipment
+
+# DELETE /equipments endpoint, deletes an equipment.
+@router.delete("/{equipment_id}", status_code=status.HTTP_204_NO_CONTENT) 
+async def delete_equipment(equipment_id: int, db: AsyncSession = Depends(get_db), # Note the request schema.
+    _: User = Depends(require_role(UserRole.FARM_OPERATIONS_ADMIN))) -> None:
+    equipment = await db.get(Equipment, equipment_id)
+    if equipment is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Equipment '{equipment_id}' not found",
+        )
+    await db.delete(equipment) # Needs await unlike .get() for some reason.
+    await db.commit()
+    return None

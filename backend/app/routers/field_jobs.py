@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.dependencies import get_current_user, get_db, require_role
 from app.models import FieldJob, FieldJobPriority, Operator, Equipment, FieldJobStatus, User, UserRole
-from app.schemas.field_job import DiscrepancyRead, FieldJobRead, FieldJobStatusUpdate, ReliabilityMetric
+from app.schemas.field_job import DiscrepancyRead, FieldJobRead, FieldJobStatusUpdate, ReliabilityMetric, FieldJobUpdate, FieldJobCreate
 
 router = APIRouter(prefix="/field_jobs", tags=["field_jobs"])
 
@@ -18,6 +18,67 @@ async def list_field_jobs(
 
     result = await db.execute(statement) # Returns a list of database tuples: [(<FieldJob object>,), (<FieldJob object>,)]
     return list(result.scalars().all())
+
+# POST /field_jobs endpoint, creates a new field_job.
+@router.post("", response_model=FieldJobRead, status_code=status.HTTP_201_CREATED) # Returns 201 Created instead of standard 200
+async def create_field_job(payload: FieldJobCreate, db: AsyncSession = Depends(get_db), # Note the request schema.
+    _: User = Depends(require_role(UserRole.FARM_OPERATIONS_ADMIN))) -> FieldJob:
+    field_job = FieldJob(**payload.model_dump()) # Converts validated Pydantic model into dictionary.
+    db.add(field_job) # Save to db.
+    await db.commit()
+    await db.refresh(field_job)
+    return field_job
+
+# UPDATE /field_jobs/{field_job_id} endpoint, update a single field_job by ID.
+@router.patch("/{field_job_id}", response_model=FieldJobRead)
+async def update_field_job(
+    field_job_id: int,
+    payload: FieldJobUpdate,
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(require_role(UserRole.FARM_OPERATIONS_ADMIN)),
+) -> FieldJob:
+    field_job = await db.get(FieldJob, field_job_id)
+    if field_job is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"FieldJob '{field_job_id}' not found",
+        )
+
+    # Prepare updated values for copying.
+    field_job_updated = payload.model_dump(exclude_unset=True)
+
+    # Update object with new values, if given.
+    for field, value in field_job_updated.items():
+        setattr(field_job, field, value)
+
+    # Commit to database.
+    await db.commit()
+    await db.refresh(field_job)
+    return field_job
+
+# DELETE /field_jobs endpoint, deletes an field_job.
+@router.delete("/{field_job_id}", status_code=status.HTTP_204_NO_CONTENT) 
+async def delete_field_job(field_job_id: int, db: AsyncSession = Depends(get_db), # Note the request schema.
+    _: User = Depends(require_role(UserRole.FARM_OPERATIONS_ADMIN))) -> None:
+    field_job = await db.get(FieldJob, field_job_id)
+    if field_job is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"FieldJob '{field_job_id}' not found",
+        )
+    await db.delete(field_job) # Needs await unlike .get() for some reason.
+    await db.commit()
+    return None
+
+
+
+
+
+
+
+
+
+
 
 
 @router.get("/discrepancies", response_model=list[DiscrepancyRead])

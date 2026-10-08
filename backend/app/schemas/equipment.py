@@ -1,4 +1,5 @@
 from decimal import Decimal
+from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -27,6 +28,15 @@ class EquipmentCreate(EquipmentBase):
 class EquipmentRead(EquipmentBase):
     id: int
     model_config = ConfigDict(from_attributes=True)
+
+class EquipmentUpdate(BaseModel):
+    # id would be provided as a path parameter, not in the JSON request body
+    # everything else is an optional field
+    serial_number: Optional[str] = Field(default=None, min_length=1, max_length=50) # Pydantic would autoreject strings outside constraints)
+    model: Optional[str] = Field(default=None, min_length=1, max_length=100)
+    status: Optional[EquipmentStatus] = None
+    fuel_level: Optional[Decimal] = Field(default=None, ge=0, le=100) # greater than or equal to, less than or equal to
+    farm_id: Optional[int] = None
 
 # Typical Classes in Schema Files:
 # ModelBase

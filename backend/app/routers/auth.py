@@ -29,7 +29,7 @@ async def login(
     access_token = create_access_token(data={"sub": user.username, "role": user.role.value})
     return Token(access_token=access_token, token_type="bearer")
 
-# require the user to have the Clinical Admin role
+# require the user to have the Admin role
 @router.post("/register", response_model=UserRead, status_code=status.HTTP_201_CREATED)
 async def register_user(
     payload: UserCreate,

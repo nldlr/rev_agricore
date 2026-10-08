@@ -1,4 +1,5 @@
 from pydantic import BaseModel, ConfigDict
+from typing import Optional
 
 class FarmRead(BaseModel):
     # id: Mapped[int] = mapped_column(primary_key=True)
@@ -12,6 +13,20 @@ class FarmRead(BaseModel):
     capacity: int
     supervisor_id: int
     model_config = ConfigDict(from_attributes=True)
+
+class FarmCreate(BaseModel):
+    name: str
+    location_region: str
+    capacity: int
+    supervisor_id: int
+
+class FarmUpdate(BaseModel):
+    # id would be provided as a path parameter, not in the JSON request body
+    # everything else is an optional field
+    name: Optional[str] = None
+    location_region: Optional[str] = None
+    capacity: Optional[int] = None
+    supervisor_id: Optional[int] = None
 
 class MaintenanceFlag(BaseModel):
     farm_id: int

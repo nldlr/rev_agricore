@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, status, HTTPException
 from sqlalchemy import case, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.dependencies import get_current_user, get_db
-from app.models import Farm, FieldJob, FieldJobStatus, Operator, Equipment, EquipmentStatus, User
-from app.schemas.farm import MaintenanceFlag, OperatorActiveFieldJobs, ReportingLineResult, FarmRead
+from app.dependencies import get_current_user, get_db, require_role
+from app.models import Farm, FieldJob, FieldJobStatus, Operator, Farm, User, UserRole, Equipment, EquipmentStatus
+from app.schemas.farm import MaintenanceFlag, OperatorActiveFieldJobs, ReportingLineResult, FarmRead, FarmCreate, FarmUpdate
+
 
 router = APIRouter(prefix="/farms", tags=["farms"])
 
@@ -18,6 +19,73 @@ async def list_farms(
 
     result = await db.execute(statement) # Returns a list of database tuples: [(<Farm object>,), (<Farm object>,)]
     return list(result.scalars().all())
+
+
+# POST /farms endpoint, creates a new farm.
+@router.post("", response_model=FarmRead, status_code=status.HTTP_201_CREATED) # Returns 201 Created instead of standard 200
+async def create_farm(payload: FarmCreate, db: AsyncSession = Depends(get_db), # Note the request schema.
+    _: User = Depends(require_role(UserRole.FARM_OPERATIONS_ADMIN))) -> Farm:
+    farm = Farm(**payload.model_dump()) # Converts validated Pydantic model into dictionary.
+    db.add(farm) # Save to db.
+    await db.commit()
+    await db.refresh(farm)
+    return farm
+
+# UPDATE /farms/{farm_id} endpoint, update a single farm by ID.
+@router.patch("/{farm_id}", response_model=FarmRead)
+async def update_farm(
+    farm_id: int,
+    payload: FarmUpdate,
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(require_role(UserRole.FARM_OPERATIONS_ADMIN)),
+) -> Farm:
+    farm = await db.get(Farm, farm_id)
+    if farm is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Farm '{farm_id}' not found",
+        )
+
+    # Prepare updated values for copying.
+    farm_updated = payload.model_dump(exclude_unset=True)
+
+    # Update object with new values, if given.
+    for field, value in farm_updated.items():
+        setattr(farm, field, value)
+
+    # Commit to database.
+    await db.commit()
+    await db.refresh(farm)
+    return farm
+
+# DELETE /farms endpoint, deletes an farm.
+@router.delete("/{farm_id}", status_code=status.HTTP_204_NO_CONTENT) 
+async def delete_farm(farm_id: int, db: AsyncSession = Depends(get_db), # Note the request schema.
+    _: User = Depends(require_role(UserRole.FARM_OPERATIONS_ADMIN))) -> None:
+    farm = await db.get(Farm, farm_id)
+    if farm is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Farm '{farm_id}' not found",
+        )
+    await db.delete(farm) # Needs await unlike .get() for some reason.
+    await db.commit()
+    return None
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 @router.get("/maintenance-flags", response_model=list[MaintenanceFlag])
