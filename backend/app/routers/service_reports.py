@@ -9,6 +9,7 @@ from app.schemas.service_report import ServiceReportRead, ServiceReportCreate, S
 
 import boto3
 from fastapi import File, Form, UploadFile
+from fastapi.concurrency import run_in_threadpool
 
 router = APIRouter(prefix="/service_reports", tags=["service_reports"])
 BUCKET_NAME = "robopulse-diagnostics-nd2478"
@@ -47,7 +48,8 @@ async def create_service_report(
     s3_key = f"diagnostics/{file.filename}"
     
     try:
-        s3_client.upload_fileobj(
+        await run_in_threadpool(
+            s3_client.upload_fileobj,
             file.file,
             BUCKET_NAME,
             s3_key,

@@ -28,11 +28,13 @@ export function AuthProvider({children}) {
             headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         });
         localStorage.setItem('agricoreToken', response.data.access_token);
+        localStorage.setItem('agricoreRefreshToken', response.data.refresh_token);
         setToken(response.data.access_token);
     }
 
     const logout = () => {
         localStorage.removeItem('agricoreToken');
+        localStorage.removeItem('agricoreRefreshToken')
         setToken(null);
     };
 

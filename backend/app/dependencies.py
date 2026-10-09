@@ -36,7 +36,8 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession
         username = payload.get("sub") # Checks for subject claim (which stores username, can't be missing/invalid).
         if username is None:
             raise credentials_exception
-    except jwt.InvalidTokenError:
+    # except jwt.InvalidTokenError:
+    except jwt.PyJWTError:
         raise credentials_exception
 
     # Execute SQLAlchemy query for user.

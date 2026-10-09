@@ -2,11 +2,12 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
+import jwt
 
 from app.dependencies import get_db, require_role
 from app.models import User, UserRole
-from app.schemas.user import Token, UserCreate, UserRead
-from app.security import create_access_token, hash_password, verify_password
+from app.schemas.user import Token, UserCreate, UserRead, RefreshTokenRequest
+from app.security import create_access_token, hash_password, verify_password, create_refresh_token, decode_refresh_token
 
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -27,7 +28,43 @@ async def login(
         )
 
     access_token = create_access_token(data={"sub": user.username, "role": user.role.value})
-    return Token(access_token=access_token, token_type="bearer")
+    refresh_token = create_refresh_token(data={"sub": user.username, "role": user.role.value})
+    return Token(access_token=access_token, refresh_token=refresh_token, token_type="bearer")
+
+@router.post("/refresh", response_model=Token)
+async def refresh_tokens(
+    body: RefreshTokenRequest,
+    db: AsyncSession = Depends(get_db),
+) -> Token:
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate refresh token",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    try:
+        payload = decode_refresh_token(body.refresh_token)
+        username = payload.get("sub")
+        if username is None:
+            raise credentials_exception
+    except jwt.PyJWTError:
+        raise credentials_exception
+
+    # Verify user still valid in db
+    result = await db.execute(select(User).where(User.username == username))
+    user = result.scalar_one_or_none()
+    if user is None:
+        raise credentials_exception
+
+    new_access_token = create_access_token(data={"sub": user.username, "role": user.role.value})
+    new_refresh_token = create_refresh_token(data={"sub": user.username, "role": user.role.value})
+
+    return Token(
+        access_token=new_access_token,
+        refresh_token=new_refresh_token,
+        token_type="bearer",
+    )
+
 
 # require the user to have the Admin role
 @router.post("/register", response_model=UserRead, status_code=status.HTTP_201_CREATED)

@@ -7,7 +7,8 @@ import jwt
 # Security Constants and helper functions for password hashing and JWTW token management
 SECRET_KEY = os.environ.get("SECRET_KEY", "<replace-with-real-secret-key>")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 60
+REFRESH_TOKEN_EXPIRE_MINUTES = 360
 
 # With bcrypt, deterministically irreversibly hashes a password.
 def hash_password(plain_password: str) -> str:
@@ -29,11 +30,35 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
         expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     )
 
-    to_encode["exp"] = expire
+    # to_encode["exp"] = expire
+    to_encode.update({"exp": expire, "type": "access"})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
+def create_refresh_token(data: dict) -> str:
+    to_encode = data.copy()
+    
+    expire = datetime.now(timezone.utc) + (
+        timedelta(minutes=REFRESH_TOKEN_EXPIRE_MINUTES)
+    )
+    
+    to_encode.update({"exp": expire, "type": "refresh"})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+
 def decode_access_token(token: str) -> dict:
-    return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    response = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+
+    if response.get("type") != "access":
+        raise jwt.PyJWTError("Invalid token type: Expected Access Token")
+    return response
+
+
+def decode_refresh_token(token: str) -> dict:
+    response = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+
+    if response.get("type") != "refresh":
+        raise jwt.PyJWTError("Invalid token type: Expected Refresh Token")
+    return response
 
 
 # JWT (Header, Payload, Signature)
