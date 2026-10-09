@@ -21,6 +21,8 @@ INSERT INTO field_jobs (id, title, priority, status, equipment_id, operator_id) 
 INSERT INTO service_reports (field_job_id, file_url, notes) VALUES
     (1, 's3://rev_argicore-diagnostics/mm-1001.pdf', 'OLED Display Model');
 
+-- INSERT INTO audits (user_id, action, entity_type, entity_id) VALUES (1, 'DELETE', 'users', 4);
+
 
 SELECT setval('farms_id_seq', (SELECT MAX(id) FROM farms));
 SELECT setval('operators_id_seq', (SELECT MAX(id) FROM operators));

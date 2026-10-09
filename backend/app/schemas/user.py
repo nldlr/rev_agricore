@@ -21,6 +21,9 @@ class UserRead(UserBase):
     id: int
     model_config = ConfigDict(from_attributes=True)
 
+class UserUpdate(BaseModel): # stretch goal
+    is_active: bool
+
 class Token(BaseModel): # Response format when sending token to client.
     access_token: str
     refresh_token: str

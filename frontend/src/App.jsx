@@ -20,6 +20,7 @@ import FieldJobsPage from './components/layout/FieldJobsPage.jsx'
 import ServiceReportsPage from './components/layout/ServiceReportsPage.jsx'
 import UsersPage from './components/layout/UsersPage.jsx'
 import HealthPage from './components/layout/HealthPage.jsx'
+import AuditPage from './components/layout/AuditsPage.jsx'
 
 
 //a main dashboard component that renders the application header and equipment data grid to authenticated users
@@ -43,6 +44,8 @@ function Dashboard(){
         return <UsersPage setNotification={setNotification}/>;
       case 'Health':
         return <HealthPage setNotification={setNotification}/>;
+      case 'Audit':
+        return <AuditPage setNotification={setNotification}/>;
       default:
         return <p>Page Error!</p>;
     }

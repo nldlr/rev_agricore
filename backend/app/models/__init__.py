@@ -6,8 +6,9 @@ from .operator import Operator
 from .service_report import ServiceReport
 from .user import User
 from .base import Base
+from .audit import Audit
 
 __all__ = [
     "Base", "EquipmentStatus", "FieldJobStatus", "FieldJobPriority", "UserRole",
-    "Equipment", "Farm", "FieldJob", "Operator", "ServiceReport", "User"
+    "Equipment", "Farm", "FieldJob", "Operator", "ServiceReport", "User", "Audit"
 ]

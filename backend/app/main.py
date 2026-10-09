@@ -68,7 +68,7 @@ from sqlalchemy import text
 
 # from app.config import settings # UNCOMMENT/COMMENT AT SAME TIME
 
-from .routers import equipments, field_jobs, auth, farms, service_reports, users
+from .routers import equipments, field_jobs, auth, farms, service_reports, users, audits
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.dependencies import get_db, require_role
@@ -104,6 +104,7 @@ app.include_router(farms.router)
 app.include_router(auth.router)
 app.include_router(service_reports.router)
 app.include_router(users.router)
+app.include_router(audits.router)
 
 # Sample health endpoint to validate the application is running correctly.
 @app.get("/health", tags=["health"])

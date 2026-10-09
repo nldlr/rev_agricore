@@ -2,14 +2,11 @@ import { useEffect, useState } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import { Alert, Box, CircularProgress, Button, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, Stack, TextField } from '@mui/material';
 import apiClient from '../../api/client.js';
+import IconButton from '@mui/material/IconButton';
+import DeleteIcon from '@mui/icons-material/Delete';
 import '../../App.css';
 
-//defines our DataGrid columns and maps them to our backend API response data
-const columns = [
-  { field: 'id', headerName: 'ID', width: 120 },
-  { field: 'username', headerName: 'User Name', width: 220},
-  { field: 'role', headerName: 'User Role', width: 260 },
-];
+
     // id: int
     // username: str = Field(min_length=3, max_length=50)
     // role: UserRole
@@ -32,12 +29,30 @@ function UserDataGrid({ onSuccess }) {
   const [lowFuelFlag, setLowFuelFlag] = useState(false);
   const [errorUser, setErrorUser] = useState(null);
 
-  //React effect hook that runs our async fetch 
-  // useEffect(() => {
-  //   //tracks component mount status to prevent memory leaks via network request delays
-  //   let isMounted = true;
+  //defines our DataGrid columns and maps them to our backend API response data
+const columns = [
+  { field: 'id', headerName: 'ID', width: 120 },
+  { field: 'username', headerName: 'User Name', width: 220},
+  { field: 'role', headerName: 'User Role', width: 260 },
+  { field: 'actions', headerName: '', width: 110, disableColumnMenu: true,
+      renderCell: (params) => (
+        <>
+          {/* <IconButton onClick={() => handleStartEdit(params.row)}>
+            <EditIcon>
+            </EditIcon>
+          </IconButton> */}
+          <IconButton onClick={() => handleDelete(params.row.id)}>
+            <DeleteIcon>
+            </DeleteIcon>
+          </IconButton>
+        </>
+        
+      )
+    },
+];
 
-    //pulls our equipment data from our backend
+
+    //pulls our user data from our backend
     async function fetchUsers() {
       setLoading(true);
       try {
@@ -61,7 +76,7 @@ function UserDataGrid({ onSuccess }) {
       setFormValues((prev)=> ({ ...prev, [field]: event.target.value}));
     }
 
-  //handles the actual creation of a new equipment record in the db
+  //handles the actual creation of a new user record in the db
 //   const handleCreate = async() => {
 //     setErrorUser(null);
 //     try {
@@ -73,12 +88,36 @@ function UserDataGrid({ onSuccess }) {
 //     setDialogOpen(false);
 //     setFormValues({serial_number: '', model: '', fuel_level: '', farm_id: '', status: 'Idle'});
 //     onSuccess(`User ${formValues.serial_number} created.`);
-//     await fetchUsers(); //see the table data refreshed with the new equipment
+//     await fetchUsers(); //see the table data refreshed with the new user
 //     } catch (err) {
 //       const msg = err.message || 'Submission failed (error unknown).';
 //       setErrorUser(msg);
 //     }
 //   }
+
+  //handles deletion of an user record in the db
+  const handleDelete = async(id) => {
+    setErrorUser(null);
+    const confirmed = window.confirm(`"Remove" user #${id}?`)
+    if (!confirmed) return;
+
+    try {
+      // Stretch goal, first gather info and add to audit.
+      const auditPayload = {
+        user_id: 1, //hardcoded
+        action: 'DELETE',
+        entity_type: 'users',
+        entity_id: Number(id),
+      };
+      await apiClient.patch(`/users/${id}/remove`);
+      onSuccess(`User #${id} "removed".`);
+      await apiClient.post('/audits', auditPayload);
+      await fetchUsers(); //see the table data refreshed with the new user
+    } catch (err) {
+      const msg = err.message || 'Submission failed (error unknown).';
+      setErrorUser(msg);
+    }
+  }
 
   //shows a spinning progress indicator if loading data
   if (loading) return <CircularProgress />;
