@@ -84,6 +84,13 @@ function AppHeader({currentPage, setCurrentPage, username, role, onLogout}) {
           >
             <ListItemText>Users</ListItemText>
           </MenuItem>
+
+          <MenuItem 
+            selected={currentPage === 'Health'} 
+            onClick={() => handlePageSelect('Health')}
+          >
+            <ListItemText>Health</ListItemText>
+          </MenuItem>
         </Menu>
 
 
