@@ -7,7 +7,7 @@ import jwt
 # Security Constants and helper functions for password hashing and JWTW token management
 SECRET_KEY = os.environ.get("SECRET_KEY", "<replace-with-real-secret-key>")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = .1
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REFRESH_TOKEN_EXPIRE_MINUTES = 360
 
 # With bcrypt, deterministically irreversibly hashes a password.
