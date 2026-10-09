@@ -1,11 +1,15 @@
 import { AppBar, Toolbar, Typography, Box, Button, IconButton, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
 import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing';
 import MenuIcon from '@mui/icons-material/Menu';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
+import LightModeIcon from '@mui/icons-material/LightMode';
 import {useState} from 'react'
+import { useColorMode } from '../../main';
 
 function AppHeader({currentPage, setCurrentPage, username, role, onLogout}) {
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
+  const { mode, toggleColorMode } = useColorMode();
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -22,7 +26,9 @@ function AppHeader({currentPage, setCurrentPage, username, role, onLogout}) {
 
 
   return (
-    <AppBar position="static">
+    <AppBar position="static" sx={{ 
+        backgroundColor: mode === 'dark' ? 'secondary.main' : 'primary.main' 
+      }}>
       <Toolbar sx={{ display: 'flex', alignItems: 'center', gap: 2}}>
         
         {/* Hamburger Menu Icon */}
@@ -87,6 +93,10 @@ function AppHeader({currentPage, setCurrentPage, username, role, onLogout}) {
         <Typography variant="h6" component="h1">
           Agricore Command Center
         </Typography>
+
+        <IconButton color="inherit" onClick={toggleColorMode} aria-label="toggle light/dark theme">
+          {mode === 'dark' ? <DarkModeIcon /> : <LightModeIcon />}
+        </IconButton>
 
         {username && (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2}}>

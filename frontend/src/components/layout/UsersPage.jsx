@@ -4,7 +4,7 @@ import UserDataGrid from '../users/UserDataGrid';
 function UsersPage( { setNotification } ) {
   return (
     <>
-        <Typography variant="h5" component="h2" gutterBottom>
+        <Typography variant="h5"  gutterBottom>
           Users
         </Typography>
         <Box sx={{ mb: 4}}>

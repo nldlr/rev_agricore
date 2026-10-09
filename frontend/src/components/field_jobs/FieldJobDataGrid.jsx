@@ -173,7 +173,7 @@ function FieldJobDataGrid({ onSuccess }) {
     </Box>
 
     <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
-      <DialogTitle>{editingId ? `Edit FieldJob` : 'Add New FieldJob'}</DialogTitle>
+      <DialogTitle sx={{color: 'black'}}>{editingId ? `Edit FieldJob` : 'Add New FieldJob'}</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1, minWidth: 300}}>
           <TextField label="Title" value={formValues.title} onChange={handleFieldChange('title')} />

@@ -4,7 +4,7 @@ import ServiceReportDataGrid from '../service_reports/ServiceReportDataGrid.jsx'
 function ServiceReportsPage( { setNotification } ) {
   return (
     <>
-        <Typography variant="h5" component="h2" gutterBottom>
+        <Typography variant="h5"  gutterBottom>
           Service Reports
         </Typography>
         <Box sx={{ mb: 4}}>

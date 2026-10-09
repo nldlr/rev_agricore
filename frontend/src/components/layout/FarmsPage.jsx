@@ -4,7 +4,7 @@ import FarmDataGrid from '../farms/FarmDataGrid.jsx'
 function FarmsPage( { setNotification } ) {
   return (
     <>
-        <Typography variant="h5" component="h2" gutterBottom>
+        <Typography variant="h5"  gutterBottom>
           Farms
         </Typography>
         <Box sx={{ mb: 4}}>

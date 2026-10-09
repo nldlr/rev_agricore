@@ -162,7 +162,7 @@ function FarmDataGrid({ onSuccess }) {
     </Box>
 
     <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
-      <DialogTitle>{editingId ? `Edit Farm` : 'Add New Farm'}</DialogTitle>
+      <DialogTitle sx={{color: 'black'}}>{editingId ? `Edit Farm` : 'Add New Farm'}</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1, minWidth: 300}}>
           <TextField label="Name" value={formValues.name} onChange={handleFieldChange('name')} />

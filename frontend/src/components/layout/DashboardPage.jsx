@@ -11,13 +11,13 @@ export default function DashboardPage({ setNotification }){
   return (
     <>
       <Container maxWidth="lg" sx={{ mt: 4}}>
-        <Typography variant="h5" component="h2" gutterBottom>
+        <Typography variant="h5" gutterBottom>
           Agricore Dashboard
         </Typography>
         <Box sx={{ mb: 4}}>
           <EquipmentDataGrid onSuccess={setNotification}/>
         </Box>
-        <Typography variant="h5" component="h2" gutterBottom>
+        <Typography variant="h5"  gutterBottom>
           Co-Location Discrepancies
         </Typography>
         <Box sx={{ mb: 4}}>
@@ -25,21 +25,21 @@ export default function DashboardPage({ setNotification }){
         </Box>
       </Container>
 
-      <Typography variant="h5" component="h2" gutterBottom>
+      <Typography variant="h5"  gutterBottom>
       Reliability Metrics
       </Typography>
       <Box sx={{ mb: 4 }}>
       <ReliabilityMetrics />
       </Box>
 
-      <Typography variant="h5" component="h2" gutterBottom>
+      <Typography variant="h5"  gutterBottom>
       Maintenance Flags
       </Typography>
       <Box sx={{ mb: 4 }}>
       <MaintenanceFlags />
       </Box>
 
-      <Typography variant="h5" component="h2" gutterBottom>
+      <Typography variant="h5"  gutterBottom>
       Reporting Lines
       </Typography>
       <Box sx={{ mb: 4 }}>

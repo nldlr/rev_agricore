@@ -106,7 +106,7 @@ function ServiceReportDataGrid({ onSuccess }) {
     </Box>
 
     <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
-      <DialogTitle>Add New Service Report</DialogTitle>
+      <DialogTitle sx={{color: 'black'}}>Add New Service Report</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1, minWidth: 300}}>
           <TextField label="Field Job ID" type="number" value={fieldJobId} onChange={(e) => setFieldJobId(e.target.value)} />
