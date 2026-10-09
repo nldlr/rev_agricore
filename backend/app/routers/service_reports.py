@@ -7,7 +7,13 @@ from app.models import FieldJob, FieldJobPriority, Operator, ServiceReport, Fiel
 from app.schemas.field_job import DiscrepancyRead, FieldJobRead, FieldJobStatusUpdate, ReliabilityMetric
 from app.schemas.service_report import ServiceReportRead, ServiceReportCreate, ServiceReportUpdate
 
+import boto3
+from fastapi import File, Form, UploadFile
+
 router = APIRouter(prefix="/service_reports", tags=["service_reports"])
+BUCKET_NAME = "robopulse-diagnostics-nd2478"
+s3_client = boto3.client("s3")
+
 
 @router.get("", response_model=list[ServiceReportRead]) # Response model = schema format that will be returned to the client.
 async def list_service_reports(
@@ -21,15 +27,48 @@ async def list_service_reports(
     return list(result.scalars().all()) # .scalars() unwraps it for first col value: [<ServiceReport object>, <ServiceReport object>]
     # Then .all() loads all items into standard python list: [ServiceReport, ServiceReport]
 
+
+
+
 # POST /service_reports endpoint, creates a new service_report.
 @router.post("", response_model=ServiceReportCreate, status_code=status.HTTP_201_CREATED) # Returns 201 Created instead of standard 200
-async def create_service_report(payload: ServiceReportCreate, db: AsyncSession = Depends(get_db), # Note the request schema.
+async def create_service_report(
+        field_job_id: int = Form(...),
+        notes: str = Form(""),
+        file: UploadFile = File(...),
+        db: AsyncSession = Depends(get_db), # Note the request schema.
     _: User = Depends(require_role(UserRole.FARM_OPERATIONS_ADMIN, UserRole.FIELD_HAND))) -> ServiceReport:
-    service_report = ServiceReport(**payload.model_dump()) # Converts validated Pydantic model into dictionary.
-    db.add(service_report) # Save to db.
+    # service_report = ServiceReport(**payload.model_dump()) # Converts validated Pydantic model into dictionary.
+    # db.add(service_report) # Save to db.
+    # await db.commit()
+    # await db.refresh(service_report)
+    # return service_report
+
+    s3_key = f"diagnostics/{file.filename}"
+    
+    try:
+        s3_client.upload_fileobj(
+            file.file,
+            BUCKET_NAME,
+            s3_key,
+            ExtraArgs={"ContentType": file.content_type},
+        )
+        s3_url = f"s3://{BUCKET_NAME}/{s3_key}"
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"S3 Upload failed: {str(e)}"
+        )
+
+    log = ServiceReport(
+        field_job_id=field_job_id, file_url=s3_url, notes=notes
+    )
+
+    db.add(log)
     await db.commit()
-    await db.refresh(service_report)
-    return service_report
+    await db.refresh(log)
+    return log
+
+
 
 
 # UPDATE /service_reports/{service_report_id} endpoint, update a single service_report by ID.
